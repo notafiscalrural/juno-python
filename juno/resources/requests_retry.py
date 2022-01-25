@@ -18,6 +18,7 @@ def headers():
         "Authorization": f"Bearer {KEYS['access_token']}",
         "X-API-Version": sdk.API_VERSION,
         "X-Resource-Token": KEYS["resource_token"],
+        "X-Idempotency-Key": KEYS["idempotency_key"],
         "Content-Type": "application/json",
     }
     return _headers
