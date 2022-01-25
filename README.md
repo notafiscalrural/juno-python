@@ -1,5 +1,4 @@
 ## Juno Python Library
-[![PyPI version](https://badge.fury.io/py/juno-python.svg)](https://badge.fury.io/py/juno-python)
 
 The Juno Python library provides integration access to the Juno Gateway.
 
@@ -7,9 +6,10 @@ The Juno Python library provides integration access to the Juno Gateway.
 
 To install, use:
 
+```sh
+$ pip install https://github.com/notafiscalrural/juno-python/archive/main.zip
 ```
-$ pip install juno-python
-```
+
 
 ## Documentation
 
