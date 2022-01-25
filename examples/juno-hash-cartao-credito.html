@@ -1,0 +1,32 @@
+<script type="text/javascript" src="https://sandbox.boletobancario.com/boletofacil/wro/direct-checkout.min.js"></script>
+
+<script type="text/javascript">
+    var checkout = new DirectCheckout('PUBLIC TOKEN', false);
+    /* Em sandbox utilizar o construtor new DirectCheckout('PUBLIC_TOKEN', false); */
+    var cardData = {
+        cardNumber: '9999999999999909',
+        holderName: 'My name',
+        securityCode: 'cvv',
+        expirationMonth: '01',
+        expirationYear: '2030'
+    };
+    /* isValidSecurityCode: Valida número do cartão de crédito (retorna true se for válido) */
+    checkout.isValidCardNumber(cardData.cardNumber);
+    /* isValidSecurityCode: Valida código de segurança do cartão de crédito (retorna true se for válido) */
+    checkout.isValidSecurityCode(cardData.cardNumber, cardData.securityCode);
+    /* isValidExpireDate: Valida data de expiração do cartão de crédito (retorna true se for válido) */
+    checkout.isValidExpireDate(cardData.expirationMonth, cardData.expirationYear);
+    /* isValidCardData: Validação dos dados do cartão de crédito(retorna true se for válido) */
+    checkout.isValidCardData(cardData, function (error) {
+        /* Erro - A variável error conterá o erro ocorrido durante a validação dos dados do cartão de crédito */
+    });
+    /* getCardType: Obtem o tipo de cartão de crédito (bandeira) */
+    checkout.getCardType(cardData.cardNumber);
+    checkout.getCardHash(cardData, function (cardHash) {
+        /* Sucesso - A variável cardHash conterá o hash do cartão de crédito */
+        console.log(cardHash)
+    }, function (error) {
+        /* Erro - A variável error conterá o erro ocorrido ao obter o hash */
+        console.log(error)
+    });
+</script>
