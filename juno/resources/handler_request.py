@@ -72,11 +72,14 @@ def validate_authorization(juno_response):
 
 
 def get_data_charges(data):
-    if len(data["_embedded"]["charges"]) == 1:
-        return {"charge": Charge(data["_embedded"]["charges"][0])}
-
     return {
-        "charges": [Charge(charge_dict) for charge_dict in data["_embedded"]["charges"]]
+        "charges": [Charge(charge_dict) for charge_dict in data["content"][0]]
+    }
+
+
+def get_data_charges_detail(data):
+    return {
+        "charges": [Charge(charge_dict) for charge_dict in data["content"]]
     }
 
 
@@ -88,9 +91,6 @@ def get_data_payments(data):
 
 
 def get_data_plans(data):
-    if len(data["_embedded"]["plans"]) == 1:
-        return {"plan": Plan(data["_embedded"]["plans"][0])}
-
     return {
         "plans": [Plan(plan_dict) for plan_dict in data["_embedded"]["plans"]]
     }
@@ -107,10 +107,11 @@ def get_data_subscriptions(data):
 
 def success_result(method, url, data):
     response = data
-    if (method == "GET" and re.search(regex_charges, url)) or (
-        method == "POST" and re.search(regex_charges, url)
-    ):
+    if (method == "GET" and re.search(regex_charges, url)):
         response = get_data_charges(data)
+
+    elif (method == "POST" and re.search(regex_charges, url)):
+        response = get_data_charges_detail(data)
 
     elif method == "GET" and re.search(regex_charges_detail, url):
         response = {"charge": Charge(data)}
@@ -128,10 +129,11 @@ def success_result(method, url, data):
     elif method == "POST" and re.search(regex_payments_refunds, url):
         print("POST payments refunds")
 
-    elif (method == "GET" and re.search(regex_plans, url)) or (
-        method == "POST" and re.search(regex_plans, url)
-    ):
+    elif (method == "GET" and re.search(regex_plans, url)):
         response = get_data_plans(data)
+
+    elif method == "POST" and re.search(regex_plans, url):
+        response = {"plan": Plan(data)}
 
     elif method == "GET" and re.search(regex_plans_detail, url):
         response = {"plan": Plan(data)}
@@ -296,4 +298,3 @@ def raise_exception_from_error_code(error_code, message=None):
         raise exceptions.JunoAlreadyRegisteredWebhookForIndicatedEvents(message)
     else:
         raise exceptions.JunoException(message)
-
