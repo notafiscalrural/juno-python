@@ -71,15 +71,15 @@ def validate_authorization(juno_response):
     return error(response_json)
 
 
-def get_data_charges(data):
-    return {
-        "charges": [Charge(charge_dict) for charge_dict in data["content"][0]]
-    }
+def get_data_charges(data, method):
+    if "_embedded" not in data:
+        return {"charges": []}
 
+    if len(data["_embedded"]["charges"]) == 1 and method == "POST":
+        return {"charge": Charge(data["_embedded"]["charges"][0])}
 
-def get_data_charges_detail(data):
     return {
-        "charges": [Charge(charge_dict) for charge_dict in data["content"]]
+        "charges": [Charge(charge_dict) for charge_dict in data["_embedded"]["charges"]]
     }
 
 
@@ -90,28 +90,37 @@ def get_data_payments(data):
     return {"payments": [Payment(payment_dict) for payment_dict in data["payments"]]}
 
 
-def get_data_plans(data):
-    return {
-        "plans": [Plan(plan_dict) for plan_dict in data["_embedded"]["plans"]]
-    }
+def get_data_plans(data, method):
+    if "_embedded" not in data:
+        return {"plans": []}
+
+    if len(data["_embedded"]["plans"]) == 1 and method == "POST":
+        return {"plan": Plan(data["_embedded"]["plans"][0])}
+
+    return {"plans": [Plan(plan_dict) for plan_dict in data["_embedded"]["plans"]]}
 
 
-def get_data_subscriptions(data):
-    if len(data["_embedded"]["subscriptions"]) == 1:
+def get_data_subscriptions(data, method):
+    if "_embedded" not in data:
+        return {"subscriptions": []}
+
+    if len(data["_embedded"]["subscriptions"]) == 1 and method == "POST":
         return {"subscription": Subscription(data["_embedded"]["subscriptions"][0])}
 
     return {
-        "subscriptions": [Subscription(subscription_dict) for subscription_dict in data["_embedded"]["subscriptions"]]
+        "subscriptions": [
+            Subscription(subscription_dict)
+            for subscription_dict in data["_embedded"]["subscriptions"]
+        ]
     }
 
 
 def success_result(method, url, data):
     response = data
-    if (method == "GET" and re.search(regex_charges, url)):
-        response = get_data_charges(data)
-
-    elif (method == "POST" and re.search(regex_charges, url)):
-        response = get_data_charges_detail(data)
+    if (method == "GET" and re.search(regex_charges, url)) or (
+        method == "POST" and re.search(regex_charges, url)
+    ):
+        response = get_data_charges(data, method)
 
     elif method == "GET" and re.search(regex_charges_detail, url):
         response = {"charge": Charge(data)}
@@ -129,11 +138,10 @@ def success_result(method, url, data):
     elif method == "POST" and re.search(regex_payments_refunds, url):
         print("POST payments refunds")
 
-    elif (method == "GET" and re.search(regex_plans, url)):
-        response = get_data_plans(data)
-
-    elif method == "POST" and re.search(regex_plans, url):
-        response = {"plan": Plan(data)}
+    elif (method == "GET" and re.search(regex_plans, url)) or (
+        method == "POST" and re.search(regex_plans, url)
+    ):
+        response = get_data_plans(data, method)
 
     elif method == "GET" and re.search(regex_plans_detail, url):
         response = {"plan": Plan(data)}
@@ -141,7 +149,7 @@ def success_result(method, url, data):
     elif (method == "GET" and re.search(regex_subscriptions, url)) or (
         method == "POST" and re.search(regex_subscriptions, url)
     ):
-        response = get_data_subscriptions(data)
+        response = get_data_subscriptions(data, method)
 
     elif method == "GET" and re.search(regex_subscriptions_detail, url):
         response = {"subscription": Subscription(data)}
@@ -206,11 +214,15 @@ def request_function(method):
 
 
 def hook_requests(method, end_point, data):
-    juno_response = request_function(method)(end_point, json=camelize(data))
+    payload = {"json": camelize(data)}
+    if method == "GET":
+        payload = {"params": camelize(data)}
+
+    juno_response = request_function(method)(end_point, **payload)
 
     if juno_response.status_code in [401, 403]:
         request_authorization()
-        return request_function(method)(end_point, json=camelize(data))
+        return request_function(method)(end_point, **payload)
 
     return juno_response
 
@@ -234,9 +246,7 @@ def delete(end_point, data={}):
 
 
 def patch(end_point, data={}):
-    return validate_response(
-        "PATCH", end_point, hook_requests("PATCH", end_point, data)
-    )
+    return validate_response("PATCH", end_point, hook_requests("PATCH", end_point, data))
 
 
 def error(data):
