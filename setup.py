@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 
-__description__ = "Juno Python"
+__description__ = "Juno Python NFR"
 with open("README.md", "r") as fh:
     __long_description__ = fh.read()
 
@@ -10,8 +10,8 @@ __author_email__ = "manaiajr.23@gmail.com"
 
 setup(
     name="juno-python",
-    version="0.3.1",
-    url="https://github.com/mjr/juno-python",
+    version="0.4.1",
+    url="https://github.com/notafiscalrural/juno-python",
     author=__author__,
     author_email=__author_email__,
     license="MIT",
