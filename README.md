@@ -1,5 +1,8 @@
 ## Juno Python Library
 
+[![PyPI](https://img.shields.io/pypi/v/juno-python-nfr)](https://pypi.org/project/juno-python-nfr/) 
+
+
 The Juno Python library provides integration access to the Juno Gateway.
 
 ## Installing
