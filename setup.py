@@ -9,7 +9,7 @@ __author__ = "Manaia Junior"
 __author_email__ = "manaiajr.23@gmail.com"
 
 setup(
-    name="juno-python",
+    name="juno-python-nfr",
     version="0.4.1",
     url="https://github.com/notafiscalrural/juno-python",
     author=__author__,
