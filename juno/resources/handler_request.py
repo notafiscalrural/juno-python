@@ -101,11 +101,11 @@ def get_data_plans(data, method):
 
 
 def get_data_subscriptions(data, method):
+    if method == "POST":
+        return {"subscription": Subscription(data)}
+
     if "_embedded" not in data:
         return {"subscriptions": []}
-
-    if len(data["_embedded"]["subscriptions"]) == 1 and method == "POST":
-        return {"subscription": Subscription(data["_embedded"]["subscriptions"][0])}
 
     return {
         "subscriptions": [
@@ -305,6 +305,7 @@ def raise_exception_from_error_code(error_code, message=None):
     ):
         raise exceptions.JunoCaptureValueGreaterThanAuthorizedValue(message)
     elif error_code == already_registered_webhook_for_indicated_events_error_code:
-        raise exceptions.JunoAlreadyRegisteredWebhookForIndicatedEvents(message)
+        raise exceptions.JunoAlreadyRegisteredWebhookForIndicatedEvents(
+            message)
     else:
         raise exceptions.JunoException(message)
